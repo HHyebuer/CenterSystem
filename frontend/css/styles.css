@@ -245,3 +245,278 @@ body {
         display: block !important;
     }
 }
+
+/* =============== 双层级角色架构新增样式 =============== */
+
+/* 登录页面样式 */
+.login-card {
+    background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+    backdrop-filter: blur(10px);
+}
+
+.role-card {
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    cursor: pointer;
+}
+
+.role-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--primary-color);
+}
+
+.role-card.selected {
+    border-color: var(--primary-color);
+    background-color: rgba(59, 130, 246, 0.05);
+}
+
+/* 部门负责人样式 */
+.dept-leader-badge {
+    background-color: rgba(59, 130, 246, 0.1);
+    color: #1d4ed8;
+    border-color: #93c5fd;
+}
+
+/* 项目负责人样式 */
+.proj-leader-badge {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: #047857;
+    border-color: #6ee7b7;
+}
+
+/* 角色指示器 */
+.role-indicator {
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.role-indicator.dept {
+    background-color: rgba(59, 130, 246, 0.1);
+    color: #1d4ed8;
+}
+
+.role-indicator.proj {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: #047857;
+}
+
+/* 导航项角色区分 */
+.nav-item.dept {
+    border-left: 3px solid #3b82f6;
+}
+
+.nav-item.proj {
+    border-left: 3px solid #10b981;
+}
+
+/* 模块卡片角色区分 */
+.module-card.dept {
+    border-top: 4px solid #3b82f6;
+}
+
+.module-card.proj {
+    border-top: 4px solid #10b981;
+}
+
+/* 隐藏类 */
+.hidden {
+    display: none !important;
+}
+
+/* 快速操作按钮 */
+.quick-action-btn {
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.quick-action-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* 看板列样式 */
+.kanban-column {
+    background-color: #f9fafb;
+    border-radius: 12px;
+    padding: 16px;
+    min-height: 400px;
+}
+
+.kanban-task {
+    transition: all 0.2s ease;
+    cursor: move;
+}
+
+.kanban-task:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* 项目组合健康度指示器 */
+.health-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 6px;
+}
+
+.health-good {
+    background-color: #10b981;
+}
+
+.health-warning {
+    background-color: #f59e0b;
+}
+
+.health-critical {
+    background-color: #ef4444;
+}
+
+/* 资源利用率指示条 */
+.resource-bar {
+    height: 8px;
+    border-radius: 4px;
+    background-color: #e5e7eb;
+    overflow: hidden;
+}
+
+.resource-fill {
+    height: 100%;
+    transition: width 0.3s ease;
+}
+
+.resource-fill.green {
+    background-color: #10b981;
+}
+
+.resource-fill.yellow {
+    background-color: #f59e0b;
+}
+
+.resource-fill.red {
+    background-color: #ef4444;
+}
+
+/* 冲突指示器 */
+.conflict-indicator {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+/* 角色切换过渡 */
+.role-transition {
+    transition: all 0.3s ease;
+}
+
+/* 知识库标签 */
+.knowledge-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 500;
+    margin-right: 4px;
+    margin-bottom: 4px;
+}
+
+.knowledge-tag.strategic {
+    background-color: rgba(59, 130, 246, 0.1);
+    color: #1d4ed8;
+}
+
+.knowledge-tag.project {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: #047857;
+}
+
+.knowledge-tag.technical {
+    background-color: rgba(139, 92, 246, 0.1);
+    color: #7c3aed;
+}
+
+/* Toast通知 */
+.toast-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    background-color: #1f2937;
+    color: white;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    transform: translateY(-100px);
+    transition: transform 0.3s ease;
+}
+
+.toast-notification.show {
+    transform: translateY(0);
+}
+
+.toast-notification.success {
+    background-color: #10b981;
+}
+
+.toast-notification.warning {
+    background-color: #f59e0b;
+}
+
+.toast-notification.error {
+    background-color: #ef4444;
+}
+
+/* 角色专属图标 */
+.role-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    margin-right: 10px;
+}
+
+.role-icon.dept {
+    background-color: #dbeafe;
+    color: #1d4ed8;
+}
+
+.role-icon.proj {
+    background-color: #d1fae5;
+    color: #047857;
+}
+
+/* 数据表格角色区分 */
+.data-table tr.dept-row {
+    background-color: rgba(59, 130, 246, 0.02);
+}
+
+.data-table tr.proj-row {
+    background-color: rgba(16, 185, 129, 0.02);
+}
+
+/* 仪表盘小部件 */
+.dashboard-widget {
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.dashboard-widget.dept {
+    border: 1px solid #dbeafe;
+}
+
+.dashboard-widget.proj {
+    border: 1px solid #d1fae5;
+}
+
+.dashboard-widget:hover {
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+}

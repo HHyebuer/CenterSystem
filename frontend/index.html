@@ -3,13 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>推栏小程序AI中枢管理后台</title>
+    <title>推栏小程序AI中枢管理后台 - 双层级角色架构</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="css/styles.css">
-    <script src="js/app.js" defer></script>
-    <script src="js/modules.js" defer></script>
+    
+    <!-- 加载认证和主应用脚本 -->
+    <script src="js/auth.js" defer></script>
+    <script src="js/app-new.js" defer></script>
+    
     <style>
         :root {
             --primary-color: #3b82f6;
@@ -43,342 +46,431 @@
         .phase-2 { background-color: #f0f9ff; color: #0c4a6e; }
         .phase-3 { background-color: #f0fdf4; color: #166534; }
         .phase-4 { background-color: #faf5ff; color: #7c3aed; }
+        
+        /* 登录页面样式 */
+        .login-card {
+            background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+            backdrop-filter: blur(10px);
+        }
+        
+        .role-card {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .role-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-color);
+        }
+        
+        .role-card.selected {
+            border-color: var(--primary-color);
+            background-color: rgba(59, 130, 246, 0.05);
+        }
+        
+        /* 部门负责人样式 */
+        .dept-leader-badge {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: #1d4ed8;
+            border-color: #93c5fd;
+        }
+        
+        /* 项目负责人样式 */
+        .proj-leader-badge {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: #047857;
+            border-color: #6ee7b7;
+        }
+        
+        /* 隐藏类 */
+        .hidden {
+            display: none !important;
+        }
+        
+        /* 内容区域切换 */
+        .content-section {
+            display: block;
+        }
+        
+        .content-section.hidden {
+            display: none;
+        }
     </style>
 </head>
 <body class="bg-gray-50">
-    <!-- 顶部导航栏 -->
-    <nav class="bg-white shadow-sm border-b border-gray-200 fixed top-0 w-full z-10">
-        <div class="px-6 py-4 flex justify-between items-center">
-            <div class="flex items-center space-x-3">
-                <div class="bg-blue-100 p-2 rounded-lg">
-                    <i class="fas fa-brain text-blue-600 text-xl"></i>
-                </div>
-                <div>
-                    <h1 class="text-xl font-bold text-gray-800">推栏AI中枢管理后台</h1>
-                    <p class="text-sm text-gray-500">版本 1.0.0 | Phase 1-4 完整实现</p>
-                </div>
-            </div>
-            <div class="flex items-center space-x-4">
-                <div class="relative">
-                    <div class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
-                        <i class="fas fa-circle text-green-500 mr-1 text-xs"></i> 系统运行中
+    
+    <!-- 登录页面 -->
+    <div id="login-page" class="min-h-screen flex items-center justify-center p-4">
+        <div class="login-card w-full max-w-4xl rounded-2xl shadow-2xl overflow-hidden">
+            <div class="grid grid-cols-1 md:grid-cols-2 min-h-[600px]">
+                <!-- 左侧欢迎区 -->
+                <div class="bg-gradient-to-br from-blue-600 to-blue-800 p-8 text-white flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center mb-6">
+                            <div class="bg-white/20 p-3 rounded-xl mr-4">
+                                <i class="fas fa-brain text-2xl"></i>
+                            </div>
+                            <h1 class="text-2xl font-bold">推栏AI中枢管理后台</h1>
+                        </div>
+                        
+                        <div class="mb-8">
+                            <h2 class="text-3xl font-bold mb-4">双层级角色架构</h2>
+                            <p class="text-blue-100 text-lg">为不同管理角色提供专属的工作界面与工具</p>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <div class="flex items-center">
+                                <div class="bg-white/20 p-2 rounded-lg mr-3">
+                                    <i class="fas fa-user-tie"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold">部门负责人</h3>
+                                    <p class="text-blue-100 text-sm">宏观视角，全局掌控项目组合与资源分配</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center">
+                                <div class="bg-white/20 p-2 rounded-lg mr-3">
+                                    <i class="fas fa-user-check"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold">项目负责人</h3>
+                                    <p class="text-blue-100 text-sm">微观视角，专注项目执行与团队协作</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center">
+                                <div class="bg-white/20 p-2 rounded-lg mr-3">
+                                    <i class="fas fa-robot"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold">AI增强决策</h3>
+                                    <p class="text-blue-100 text-sm">智能分析、自动执行、实时监控</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8">
+                        <p class="text-blue-100 text-sm">版本 2.0 | 双层级角色架构正式上线</p>
                     </div>
                 </div>
-                <div class="relative">
-                    <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition">
-                        <i class="fas fa-plus mr-2"></i>新建任务
-                    </button>
-                </div>
-                <div class="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center cursor-pointer">
-                    <i class="fas fa-user text-gray-600"></i>
+                
+                <!-- 右侧登录区 -->
+                <div class="bg-white p-8 flex flex-col justify-center">
+                    <div class="mb-8">
+                        <h3 class="text-2xl font-bold text-gray-800 mb-2">选择您的角色</h3>
+                        <p class="text-gray-600">系统将根据您的角色优化界面与功能</p>
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <!-- 部门负责人卡片 -->
+                        <div class="role-card dept-leader-badge p-6 rounded-xl border cursor-pointer" id="dept-leader-card">
+                            <div class="flex items-start">
+                                <div class="bg-blue-100 p-3 rounded-lg mr-4">
+                                    <i class="fas fa-user-tie text-blue-600 text-2xl"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="text-xl font-bold text-gray-800 mb-2">部门负责人</h4>
+                                    <p class="text-gray-600 mb-3">宏观管理视角，关注项目组合健康度、资源调配与战略规划</p>
+                                    
+                                    <div class="grid grid-cols-2 gap-2 mb-4">
+                                        <div class="flex items-center">
+                                            <i class="fas fa-chart-line text-blue-500 mr-2 text-sm"></i>
+                                            <span class="text-sm text-gray-700">全局仪表盘</span>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <i class="fas fa-project-diagram text-blue-500 mr-2 text-sm"></i>
+                                            <span class="text-sm text-gray-700">项目组合管理</span>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <i class="fas fa-cogs text-blue-500 mr-2 text-sm"></i>
+                                            <span class="text-sm text-gray-700">资源调配中心</span>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <i class="fas fa-chess-board text-blue-500 mr-2 text-sm"></i>
+                                            <span class="text-sm text-gray-700">战略规划器</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="text-sm text-blue-600 font-medium">
+                                        <i class="fas fa-bullseye mr-1"></i> 核心关注：战略对齐、资源优化、跨项目协作
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 项目负责人卡片 -->
+                        <div class="role-card proj-leader-badge p-6 rounded-xl border cursor-pointer" id="proj-leader-card">
+                            <div class="flex items-start">
+                                <div class="bg-green-100 p-3 rounded-lg mr-4">
+                                    <i class="fas fa-user-check text-green-600 text-2xl"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="text-xl font-bold text-gray-800 mb-2">项目负责人</h4>
+                                    <p class="text-gray-600 mb-3">微观执行视角，专注项目落地、任务执行与团队协作</p>
+                                    
+                                    <div class="grid grid-cols-2 gap-2 mb-4">
+                                        <div class="flex items-center">
+                                            <i class="fas fa-desktop text-green-500 mr-2 text-sm"></i>
+                                            <span class="text-sm text-gray-700">项目工作台</span>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <i class="fas fa-tasks text-green-500 mr-2 text-sm"></i>
+                                            <span class="text-sm text-gray-700">任务管理</span>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <i class="fas fa-users text-green-500 mr-2 text-sm"></i>
+                                            <span class="text-sm text-gray-700">团队协作</span>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <i class="fas fa-play-circle text-green-500 mr-2 text-sm"></i>
+                                            <span class="text-sm text-gray-700">执行引擎</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="text-sm text-green-600 font-medium">
+                                        <i class="fas fa-bullseye mr-1"></i> 核心关注：项目进度、任务质量、团队效率
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8 pt-6 border-t border-gray-200">
+                        <p class="text-gray-500 text-sm mb-4">选择角色后，系统将为您加载专属界面</p>
+                        
+                        <div class="flex space-x-4">
+                            <button id="login-dept-leader" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition flex items-center justify-center">
+                                <i class="fas fa-user-tie mr-2"></i> 以部门负责人登录
+                            </button>
+                            <button id="login-proj-leader" class="flex-1 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition flex items-center justify-center">
+                                <i class="fas fa-user-check mr-2"></i> 以项目负责人登录
+                            </button>
+                        </div>
+                        
+                        <div class="mt-4 text-center text-gray-500 text-sm">
+                            <i class="fas fa-info-circle mr-1"></i> 此演示为离线版本，无需真实凭证
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </nav>
-
-    <!-- 主容器 -->
-    <div class="flex pt-16">
-        <!-- 侧边栏 -->
-        <aside class="sidebar w-64 bg-white border-r border-gray-200 h-screen fixed left-0 overflow-y-auto">
-            <div class="p-6">
-                <h2 class="text-lg font-semibold text-gray-700 mb-6 flex items-center">
-                    <i class="fas fa-th-large mr-3 text-blue-500"></i> 功能导航
-                </h2>
-                <nav class="space-y-2">
-                    <a href="#dashboard" class="nav-item active">
-                        <i class="fas fa-tachometer-alt mr-3"></i> 仪表盘
-                    </a>
-                    <a href="#projects" class="nav-item">
-                        <i class="fas fa-project-diagram mr-3"></i> 项目管理
-                    </a>
-                    <a href="#knowledge" class="nav-item">
-                        <i class="fas fa-book mr-3"></i> 知识库中枢
-                    </a>
-                    <a href="#ai" class="nav-item">
-                        <i class="fas fa-robot mr-3"></i> AI调度中心
-                    </a>
-                    <a href="#workflow" class="nav-item">
-                        <i class="fas fa-stream mr-3"></i> 工作流编排
-                    </a>
-                    <a href="#skills" class="nav-item">
-                        <i class="fas fa-tools mr-3"></i> Skill仓库
-                    </a>
-                    <a href="#memory" class="nav-item">
-                        <i class="fas fa-history mr-3"></i> 记忆系统
-                    </a>
-                    <a href="#context" class="nav-item">
-                        <i class="fas fa-layer-group mr-3"></i> 上下文管理
-                    </a>
-                </nav>
-                
-                <div class="mt-10">
-                    <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">实施阶段</h3>
-                    <div class="space-y-3">
-                        <div class="flex items-center justify-between">
-                            <span class="text-gray-700">Phase 1: 基础框架</span>
-                            <span class="phase-badge phase-1">已完成</span>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <span class="text-gray-700">Phase 2: AI增强</span>
-                            <span class="phase-badge phase-2">已完成</span>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <span class="text-gray-700">Phase 3: 记忆系统</span>
-                            <span class="phase-badge phase-3">已完成</span>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <span class="text-gray-700">Phase 4: 高级功能</span>
-                            <span class="phase-badge phase-4">已完成</span>
-                        </div>
+    </div>
+    
+    <!-- 主应用容器 -->
+    <div id="app-container" class="hidden">
+        <!-- 顶部导航栏 -->
+        <nav class="bg-white shadow-sm border-b border-gray-200 fixed top-0 w-full z-10">
+            <div class="px-6 py-4 flex justify-between items-center">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-blue-100 p-2 rounded-lg">
+                        <i class="fas fa-brain text-blue-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text-gray-800">推栏AI中枢管理后台</h1>
+                        <p class="text-sm text-gray-500">
+                            <span id="role-indicator">双层级角色架构</span>
+                            | 
+                            <span id="version-info">版本 2.0</span>
+                        </p>
                     </div>
                 </div>
-                
-                <div class="mt-10 p-4 bg-blue-50 rounded-lg">
-                    <h4 class="text-sm font-semibold text-blue-800 mb-2">系统状态</h4>
-                    <div class="space-y-2">
-                        <div class="flex justify-between text-sm">
-                            <span class="text-gray-600">AI模型在线</span>
-                            <span class="font-medium text-green-600">4/4</span>
-                        </div>
-                        <div class="flex justify-between text-sm">
-                            <span class="text-gray-600">Skills可用</span>
-                            <span class="font-medium text-green-600">42</span>
-                        </div>
-                        <div class="flex justify-between text-sm">
-                            <span class="text-gray-600">记忆存储</span>
-                            <span class="font-medium text-blue-600">1.2GB</span>
-                        </div>
-                        <div class="flex justify-between text-sm">
-                            <span class="text-gray-600">工作流执行</span>
-                            <span class="font-medium text-purple-600">28</span>
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <div class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+                            <i class="fas fa-circle text-green-500 mr-1 text-xs"></i> <span id="system-status">系统运行中</span>
                         </div>
                     </div>
-                </div>
-            </div>
-        </aside>
-
-        <!-- 主内容区 -->
-        <main class="ml-64 flex-1 p-8">
-            <!-- 仪表盘 -->
-            <section id="dashboard" class="content-section active">
-                <div class="mb-8">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-2">项目仪表盘</h2>
-                    <p class="text-gray-600">推栏小程序AI中枢管理后台 - 实时监控与智能控制</p>
-                </div>
-                
-                <!-- 关键指标 -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    <div class="card-hover bg-white p-6 rounded-xl shadow border border-gray-100">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <p class="text-gray-500 text-sm">活跃项目</p>
-                                <h3 class="text-2xl font-bold mt-2">3</h3>
-                            </div>
-                            <div class="bg-blue-100 p-3 rounded-lg">
-                                <i class="fas fa-project-diagram text-blue-600 text-xl"></i>
-                            </div>
-                        </div>
-                        <div class="mt-4 text-sm text-gray-500">
-                            <span class="text-green-600 font-medium"><i class="fas fa-arrow-up mr-1"></i>12%</span> 环比增长
-                        </div>
-                    </div>
-                    
-                    <div class="card-hover bg-white p-6 rounded-xl shadow border border-gray-100">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <p class="text-gray-500 text-sm">AI任务执行</p>
-                                <h3 class="text-2xl font-bold mt-2">156</h3>
-                            </div>
-                            <div class="bg-green-100 p-3 rounded-lg">
-                                <i class="fas fa-robot text-green-600 text-xl"></i>
-                            </div>
-                        </div>
-                        <div class="mt-4 text-sm text-gray-500">
-                            <span class="text-green-600 font-medium"><i class="fas fa-arrow-up mr-1"></i>24%</span> 本周新增
-                        </div>
-                    </div>
-                    
-                    <div class="card-hover bg-white p-6 rounded-xl shadow border border-gray-100">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <p class="text-gray-500 text-sm">知识库条目</p>
-                                <h3 class="text-2xl font-bold mt-2">1,247</h3>
-                            </div>
-                            <div class="bg-purple-100 p-3 rounded-lg">
-                                <i class="fas fa-book text-purple-600 text-xl"></i>
-                            </div>
-                        </div>
-                        <div class="mt-4 text-sm text-gray-500">
-                            <span class="text-green-600 font-medium"><i class="fas fa-arrow-up mr-1"></i>8%</span> 昨日新增
-                        </div>
-                    </div>
-                    
-                    <div class="card-hover bg-white p-6 rounded-xl shadow border border-gray-100">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <p class="text-gray-500 text-sm">工作流成功率</p>
-                                <h3 class="text-2xl font-bold mt-2">94.2%</h3>
-                            </div>
-                            <div class="bg-orange-100 p-3 rounded-lg">
-                                <i class="fas fa-stream text-orange-600 text-xl"></i>
-                            </div>
-                        </div>
-                        <div class="mt-4 text-sm text-gray-500">
-                            <span class="text-green-600 font-medium"><i class="fas fa-arrow-up mr-1"></i>2.3%</span> 效率提升
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- 图表区域 -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-                    <div class="card-hover bg-white p-6 rounded-xl shadow border border-gray-100">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-4">项目进度概览</h3>
-                        <div class="h-64">
-                            <canvas id="projectProgressChart"></canvas>
-                        </div>
-                    </div>
-                    
-                    <div class="card-hover bg-white p-6 rounded-xl shadow border border-gray-100">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-4">AI模型使用分布</h3>
-                        <div class="h-64">
-                            <canvas id="aiModelChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- 最近活动 -->
-                <div class="card-hover bg-white p-6 rounded-xl shadow border border-gray-100">
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-lg font-semibold text-gray-800">最近活动</h3>
-                        <button class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                            查看全部 <i class="fas fa-arrow-right ml-1"></i>
+                    <div class="relative">
+                        <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition">
+                            <i class="fas fa-plus mr-2"></i>新建任务
                         </button>
                     </div>
-                    <div class="space-y-4">
-                        <div class="flex items-center p-3 hover:bg-gray-50 rounded-lg">
-                            <div class="bg-green-100 p-2 rounded-lg mr-4">
-                                <i class="fas fa-check-circle text-green-600"></i>
-                            </div>
-                            <div class="flex-1">
-                                <p class="font-medium text-gray-800">V2.8聊天功能优化需求分析完成</p>
-                                <p class="text-sm text-gray-500">AI模型: Claude-3.5 | 耗时: 2分14秒</p>
-                            </div>
-                            <span class="text-sm text-gray-500">10分钟前</span>
-                        </div>
-                        
-                        <div class="flex items-center p-3 hover:bg-gray-50 rounded-lg">
-                            <div class="bg-blue-100 p-2 rounded-lg mr-4">
-                                <i class="fas fa-code-branch text-blue-600"></i>
-                            </div>
-                            <div class="flex-1">
-                                <p class="font-medium text-gray-800">工作流 #WF-028 执行成功</p>
-                                <p class="text-sm text-gray-500">调用了 github-pr-workflow, taro-4-testing-setup</p>
-                            </div>
-                            <span class="text-sm text-gray-500">1小时前</span>
-                        </div>
-                        
-                        <div class="flex items-center p-3 hover:bg-gray-50 rounded-lg">
-                            <div class="bg-purple-100 p-2 rounded-lg mr-4">
-                                <i class="fas fa-book-medical text-purple-600"></i>
-                            </div>
-                            <div class="flex-1">
-                                <p class="font-medium text-gray-800">新增记忆条目: 聊天功能API适配经验</p>
-                                <p class="text-sm text-gray-500">关联: 聊天互通模块, V2.5历史记忆</p>
-                            </div>
-                            <span class="text-sm text-gray-500">3小时前</span>
-                        </div>
-                        
-                        <div class="flex items-center p-3 hover:bg-gray-50 rounded-lg">
-                            <div class="bg-orange-100 p-2 rounded-lg mr-4">
-                                <i class="fas fa-tasks text-orange-600"></i>
-                            </div>
-                            <div class="flex-1">
-                                <p class="font-medium text-gray-800">新需求: 复合页面配置优化</p>
-                                <p class="text-sm text-gray-500">优先级: 高 | 预计工期: 5天</p>
-                            </div>
-                            <span class="text-sm text-gray-500">今天 09:30</span>
-                        </div>
+                    <div id="user-info" class="flex items-center space-x-3">
+                        <!-- 用户信息由JS动态填充 -->
                     </div>
                 </div>
-            </section>
-            
-            <!-- 项目管理模块 (其他模块初始隐藏) -->
-            <section id="projects" class="content-section hidden">
-                <div class="mb-8">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-2">项目管理</h2>
-                    <p class="text-gray-600">版本迭代、需求池、任务分配与进度跟踪</p>
+            </div>
+        </nav>
+
+        <!-- 主容器 -->
+        <div class="flex pt-16">
+            <!-- 侧边栏 -->
+            <aside class="sidebar w-64 bg-white border-r border-gray-200 h-screen fixed left-0 overflow-y-auto">
+                <div class="p-6">
+                    <h2 class="text-lg font-semibold text-gray-700 mb-6 flex items-center">
+                        <i class="fas fa-th-large mr-3 text-blue-500"></i> 功能导航
+                    </h2>
+                    
+                    <!-- 导航项由JS动态生成 -->
+                    <nav class="space-y-2" id="main-navigation">
+                        <!-- 导航项动态生成 -->
+                    </nav>
+                    
+                    <!-- 实施阶段 -->
+                    <div class="mt-10">
+                        <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">实施阶段</h3>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-700">Phase 1: 基础框架</span>
+                                <span class="phase-badge phase-1">已完成</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-700">Phase 2: AI增强</span>
+                                <span class="phase-badge phase-2">已完成</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-700">Phase 3: 记忆系统</span>
+                                <span class="phase-badge phase-3">已完成</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-700">Phase 4: 高级功能</span>
+                                <span class="phase-badge phase-4">已完成</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 系统状态 -->
+                    <div class="mt-10 p-4 bg-blue-50 rounded-lg">
+                        <h4 class="text-sm font-semibold text-blue-800 mb-2">系统状态</h4>
+                        <div class="space-y-2">
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-600">AI模型在线</span>
+                                <span class="font-medium text-green-600">4/4</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-600">Skills可用</span>
+                                <span class="font-medium text-green-600" id="skills-count">42</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-600">记忆存储</span>
+                                <span class="font-medium text-blue-600" id="memory-size">1.2GB</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-600">工作流执行</span>
+                                <span class="font-medium text-purple-600" id="workflow-count">28</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 角色切换提示 -->
+                    <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                        <h4 class="text-sm font-semibold text-gray-700 mb-1">当前角色</h4>
+                        <div class="text-sm text-gray-600" id="current-role-display">部门负责人</div>
+                        <button id="switch-role-btn" class="mt-2 w-full text-xs text-blue-600 hover:text-blue-800">
+                            <i class="fas fa-random mr-1"></i> 切换角色视图
+                        </button>
+                    </div>
                 </div>
-                <!-- 项目管理内容将在JavaScript中动态生成 -->
-            </section>
-            
-            <!-- 知识库中枢模块 -->
-            <section id="knowledge" class="content-section hidden">
-                <div class="mb-8">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-2">知识库中枢</h2>
-                    <p class="text-gray-600">集成Obsidian知识库，提供结构化知识管理与智能推荐</p>
-                </div>
-                <!-- 知识库内容将在JavaScript中动态生成 -->
-            </section>
-            
-            <!-- AI调度中心模块 -->
-            <section id="ai" class="content-section hidden">
-                <div class="mb-8">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-2">AI调度中心</h2>
-                    <p class="text-gray-600">多模型管理、计划生成、任务分解与代理调度</p>
-                </div>
-                <!-- AI调度内容将在JavaScript中动态生成 -->
-            </section>
-            
-            <!-- 工作流编排模块 -->
-            <section id="workflow" class="content-section hidden">
-                <div class="mb-8">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-2">工作流编排</h2>
-                    <p class="text-gray-600">可视化工作流设计、执行监控与自动化任务处理</p>
-                </div>
-                <!-- 工作流内容将在JavaScript中动态生成 -->
-            </section>
-            
-            <!-- Skill仓库模块 -->
-            <section id="skills" class="content-section hidden">
-                <div class="mb-8">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-2">Skill仓库</h2>
-                    <p class="text-gray-600">Hermes Agent技能管理、分类、编排与执行监控</p>
-                </div>
-                <!-- Skill仓库内容将在JavaScript中动态生成 -->
-            </section>
-            
-            <!-- 记忆系统模块 -->
-            <section id="memory" class="content-section hidden">
-                <div class="mb-8">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-2">记忆系统</h2>
-                    <p class="text-gray-600">历史经验存储、语义检索、关联分析与智能推荐</p>
-                </div>
-                <!-- 记忆系统内容将在JavaScript中动态生成 -->
-            </section>
-            
-            <!-- 上下文管理模块 -->
-            <section id="context" class="content-section hidden">
-                <div class="mb-8">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-2">上下文管理系统</h2>
-                    <p class="text-gray-600">任务上下文构建、维护、注入与版本控制</p>
-                </div>
-                <!-- 上下文管理内容将在JavaScript中动态生成 -->
-            </section>
-        </main>
+            </aside>
+
+            <!-- 主内容区 -->
+            <main class="ml-64 flex-1 p-8">
+                <!-- 部门负责人专属模块 -->
+                <section id="dashboard" class="content-section active">
+                    <!-- 仪表盘内容由JS动态生成 -->
+                </section>
+                
+                <section id="projects" class="content-section hidden">
+                    <!-- 项目组合管理内容由JS动态生成 -->
+                </section>
+                
+                <section id="resources" class="content-section hidden">
+                    <!-- 资源调配中心内容由JS动态生成 -->
+                </section>
+                
+                <section id="strategy" class="content-section hidden">
+                    <!-- 战略规划器内容由JS动态生成 -->
+                </section>
+                
+                <section id="collaboration" class="content-section hidden">
+                    <!-- 跨项目协作内容由JS动态生成 -->
+                </section>
+                
+                <!-- 项目负责人专属模块 -->
+                <section id="workspace" class="content-section hidden">
+                    <!-- 项目工作台内容由JS动态生成 -->
+                </section>
+                
+                <section id="tasks" class="content-section hidden">
+                    <!-- 任务管理内容由JS动态生成 -->
+                </section>
+                
+                <section id="team" class="content-section hidden">
+                    <!-- 团队协作内容由JS动态生成 -->
+                </section>
+                
+                <section id="execution" class="content-section hidden">
+                    <!-- 执行引擎内容由JS动态生成 -->
+                </section>
+                
+                <section id="issues" class="content-section hidden">
+                    <!-- 问题解决中心内容由JS动态生成 -->
+                </section>
+                
+                <!-- 共享模块 -->
+                <section id="knowledge" class="content-section hidden">
+                    <!-- 知识库中枢内容由JS动态生成 -->
+                </section>
+                
+                <section id="ai" class="content-section hidden">
+                    <!-- AI调度中心内容由JS动态生成 -->
+                </section>
+                
+                <section id="workflow" class="content-section hidden">
+                    <!-- 工作流编排内容由JS动态生成 -->
+                </section>
+                
+                <section id="skills" class="content-section hidden">
+                    <!-- Skill仓库内容由JS动态生成 -->
+                </section>
+                
+                <section id="memory" class="content-section hidden">
+                    <!-- 记忆系统内容由JS动态生成 -->
+                </section>
+                
+                <section id="context" class="content-section hidden">
+                    <!-- 上下文管理内容由JS动态生成 -->
+                </section>
+            </main>
+        </div>
     </div>
 
-    <!-- 底部信息 -->
-    <footer class="ml-64 border-t border-gray-200 bg-white py-4 px-8">
-        <div class="flex justify-between items-center text-sm text-gray-500">
-            <div>
-                <span>推栏AI中枢管理后台 v1.0.0 | 最后更新: 2026-04-20</span>
-            </div>
-            <div>
-                <span>系统状态: <span class="text-green-600 font-medium">正常运行</span></span>
-            </div>
-        </div>
-    </footer>
-
-
+    <!-- 脚本初始化 -->
+    <script>
+        // 初始化角色卡片交互
+        document.addEventListener('DOMContentLoaded', function() {
+            const deptCard = document.getElementById('dept-leader-card');
+            const projCard = document.getElementById('proj-leader-card');
+            
+            if (deptCard && projCard) {
+                [deptCard, projCard].forEach(card => {
+                    card.addEventListener('click', function() {
+                        // 移除所有选择状态
+                        deptCard.classList.remove('selected');
+                        projCard.classList.remove('selected');
+                        
+                        // 添加当前选择状态
+                        this.classList.add('selected');
+                    });
+                });
+            }
+            
+            // 版本信息更新
+            const versionInfo = document.getElementById('version-info');
+            if (versionInfo) {
+                versionInfo.textContent = '版本 2.0 - 双层级角色架构';
+            }
+            
+            // 系统状态模拟更新
+            setInterval(() => {
+                const statusEl = document.getElementById('system-status');
+                if (statusEl) {
+                    statusEl.textContent = '系统运行中';
+                }
+            }, 30000);
+        });
+    </script>
 </body>
 </html>
