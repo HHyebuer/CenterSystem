@@ -38,8 +38,32 @@ class CenterSystemApp {
     if (appContainer) appContainer.classList.add('hidden');
     if (loginPage) loginPage.classList.remove('hidden');
     
+    // 重置登录按钮状态
+    this.resetLoginButtons();
+    
     // 绑定登录按钮事件
     this.bindLoginEvents();
+  }
+  
+  resetLoginButtons() {
+    const deptLeaderBtn = document.getElementById('login-dept-leader');
+    const projLeaderBtn = document.getElementById('login-proj-leader');
+    
+    if (deptLeaderBtn) {
+      deptLeaderBtn.disabled = false;
+      deptLeaderBtn.innerHTML = '<i class="fas fa-user-tie mr-2"></i> 以部门负责人登录';
+    }
+    
+    if (projLeaderBtn) {
+      projLeaderBtn.disabled = false;
+      projLeaderBtn.innerHTML = '<i class="fas fa-user-check mr-2"></i> 以项目负责人登录';
+    }
+    
+    // 重置角色卡片选择状态
+    const deptCard = document.getElementById('dept-leader-card');
+    const projCard = document.getElementById('proj-leader-card');
+    if (deptCard) deptCard.classList.remove('selected');
+    if (projCard) projCard.classList.remove('selected');
   }
 
   bindLoginEvents() {
@@ -47,27 +71,43 @@ class CenterSystemApp {
     const projLeaderBtn = document.getElementById('login-proj-leader');
     const logoutBtn = document.getElementById('logout-btn');
     
+    // 清除可能存在的旧事件处理器
     if (deptLeaderBtn) {
-      deptLeaderBtn.addEventListener('click', async () => {
+      deptLeaderBtn.onclick = null;
+      deptLeaderBtn.onclick = async () => {
+        deptLeaderBtn.disabled = true;
+        deptLeaderBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>登录中...';
+        
         await this.auth.login('department_leader');
         this.handleLoginSuccess();
-      });
+        
+        deptLeaderBtn.disabled = false;
+        deptLeaderBtn.innerHTML = '<i class="fas fa-user-tie mr-2"></i> 以部门负责人登录';
+      };
     }
     
     if (projLeaderBtn) {
-      projLeaderBtn.addEventListener('click', async () => {
+      projLeaderBtn.onclick = null;
+      projLeaderBtn.onclick = async () => {
+        projLeaderBtn.disabled = true;
+        projLeaderBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>登录中...';
+        
         // 模拟项目选择 - 实际项目中应从API获取
         const projectId = 'proj-001'; // 默认项目
         await this.auth.login('project_leader', projectId);
         this.handleLoginSuccess();
-      });
+        
+        projLeaderBtn.disabled = false;
+        projLeaderBtn.innerHTML = '<i class="fas fa-user-check mr-2"></i> 以项目负责人登录';
+      };
     }
     
     if (logoutBtn) {
-      logoutBtn.addEventListener('click', () => {
+      logoutBtn.onclick = null;
+      logoutBtn.onclick = () => {
         this.auth.logout();
         this.showLoginPage();
-      });
+      };
     }
   }
 
@@ -89,22 +129,6 @@ class CenterSystemApp {
   showWelcomeMessage() {
     const roleName = this.auth.getRoleDisplayName();
     const userName = this.auth.getUser()?.name || '用户';
-    
-    // 更新顶部栏用户信息
-    const userInfo = document.getElementById('user-info');
-    if (userInfo) {
-      userInfo.innerHTML = `
-        <div class="flex items-center space-x-3">
-          <div class="h-10 w-10 rounded-full ${this.auth.isDepartmentLeader() ? 'bg-blue-100' : 'bg-green-100'} flex items-center justify-center">
-            <span class="${this.auth.isDepartmentLeader() ? 'text-blue-600' : 'text-green-600'} font-bold">${this.auth.getUser()?.avatar || 'U'}</span>
-          </div>
-          <div>
-            <div class="font-medium text-gray-700">${userName}</div>
-            <div class="text-xs ${this.auth.isDepartmentLeader() ? 'text-blue-600' : 'text-green-600'} font-medium">${roleName}</div>
-          </div>
-        </div>
-      `;
-    }
     
     // 显示Toast通知
     setTimeout(() => {
@@ -1657,17 +1681,36 @@ class CenterSystemApp {
             <div class="font-medium text-gray-700">${user?.name || '用户'}</div>
             <div class="text-xs ${this.auth.isDepartmentLeader() ? 'text-blue-600' : 'text-green-600'} font-medium">${roleName}</div>
           </div>
-          <button id="logout-btn" class="text-gray-500 hover:text-gray-700">
-            <i class="fas fa-sign-out-alt"></i>
-          </button>
+          <div class="flex items-center space-x-2">
+            <button id="switch-role-btn" class="flex items-center px-3 py-1 text-sm rounded-lg ${this.auth.isDepartmentLeader() ? 'bg-blue-100 text-blue-700 hover:bg-blue-200' : 'bg-green-100 text-green-700 hover:bg-green-200'} border border-transparent hover:border-current transition">
+              <i class="fas fa-random mr-1"></i> 返回角色选择
+            </button>
+            <button id="logout-btn" class="text-gray-500 hover:text-gray-700">
+              <i class="fas fa-sign-out-alt"></i>
+            </button>
+          </div>
         </div>
       `;
       
+      // 绑定返回角色选择按钮
+      const switchRoleBtn = document.getElementById('switch-role-btn');
+      if (switchRoleBtn) {
+        switchRoleBtn.onclick = () => {
+          this.auth.logout();
+          this.showLoginPage();
+        };
+      }
+      
       // 绑定登出按钮
-      document.getElementById('logout-btn')?.addEventListener('click', () => {
-        this.auth.logout();
-        this.showLoginPage();
-      });
+      const logoutBtn = document.getElementById('logout-btn');
+      if (logoutBtn) {
+        logoutBtn.onclick = () => {
+          if (confirm('确定要退出登录吗？')) {
+            this.auth.logout();
+            this.showLoginPage();
+          }
+        };
+      }
     }
   }
 
